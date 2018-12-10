@@ -19,7 +19,7 @@ cd ODEGRfinder
 Or download from "Download ZIP" button and unzip it.
 
 # Example Data
-The mES-PrE dataset and hNSC-NC dataset are avaiable at .
+The mES-PrE dataset and hNSC-NC dataset are avaiable at https://doi.org/10.6084/m9.figshare.7410509.v1 and https://doi.org/10.6084/m9.figshare.7410512, respectively.
 
 # Pre-processing
 ## Make read count matrix
@@ -121,7 +121,7 @@ Rscript extract_mappability.R mm10/k24.umap.bw ES_PrE/data/mygtf_gene.txt ES_PrE
 ```
 
 #### Format of Input_file1
-The bigwig file of mappability of 24bp and is downloaded from https://bismap.hoffmanlab.org.
+The bigwig file of mappability of 24-bp and is downloaded from https://bismap.hoffmanlab.org.
 
 #### Format of Output_file ("isunmappable.txt")
 Each row of Output_file contains tab-separated values (0 or 1) of length L, where L is the number of bins for a gene.
@@ -166,7 +166,6 @@ Combine Output_dir/NMF_K_coef_a_b.txt, Output_dir/NMF_K_coef_c_d.txt, .....
 #### Usage
 ```
 Rscript merge_NMF_coef.R <Input_dir> <C> <G> <K> <idxs1> <idxs2>
-
 ```
 
 * Input_dir : the directory of Output_dir in NMF_for_countdata.R
