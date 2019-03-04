@@ -1,6 +1,6 @@
 # ODEGRfinder
 
-A NMF-based approach to discover overlooked differentially expressed gene regions from single-cell RNA-seq data
+An NMF-based approach to discover overlooked differentially expressed gene regions from single-cell RNA-seq data
 
 ## Reference
 
@@ -8,7 +8,14 @@ Under submission
 
 ## Requirements
 
-ODEGRfinder is mainly written with R and uses "NMF", "GenomicRanges", "rtracklayer", "Rsamtools", and "stringr" library.
+ODEGRfinder is mainly written with R and uses "NMF" library. We also use "GenomicRanges", "rtracklayer", "Rsamtools", and "stringr" library in data pre-processing. In the manuscript, the following package versions were used.
+```
+NMF: 0.20.5
+GenomicRanges: 1.30.3
+rtracklayer: 1.38.3
+Rsamtools: 1.30.0
+stringr: 1.2.0
+```
 
 ## Download
 
@@ -18,8 +25,38 @@ cd ODEGRfinder
 ```
 Or download from "Download ZIP" button and unzip it.
 
-# Example Data
+## Dataset in the manuscript
 The mES-PrE dataset and hNSC-NC dataset are avaiable at https://doi.org/10.6084/m9.figshare.7410509.v1 and https://doi.org/10.6084/m9.figshare.7410512, respectively.
+
+## A small dataset to demo the code
+Running ODEGRfinder with a small dataset (20 genes and 185 cells).
+The computational time is about 5 minutes with MacBook Pro (2.5GHz Intel Core i7 and 16GB 2133MHz LPDDR3). 
+The detailed explanation of each step are described at [NMF](#nmf), [t-test](#ttest), and [Calculate Delta(Tnmf-Ttpm)](#deltaT).
+
+
+#### NMF for read count matrix
+```
+Rscript NMF_for_countdata.R demo_data/isoverlap.txt demo_data/isunmappable.txt demo_count_data demo_out 1 20 185 2 123456
+Rscript NMF_for_countdata.R demo_data/isoverlap.txt demo_data/isunmappable.txt demo_count_data demo_out 1 20 185 5 123456
+Rscript NMF_for_countdata.R demo_data/isoverlap.txt demo_data/isunmappable.txt demo_count_data demo_out 1 20 185 10 123456
+```
+
+#### t-test for NMF results
+```
+Rscript ttest_NMF.R demo_data/cell_label.txt demo_out/NMF_2_coef_1_20.txt demo_out/ttest_result_NMF_2.txt 20 2
+Rscript ttest_NMF.R demo_data/cell_label.txt demo_out/NMF_5_coef_1_20.txt demo_out/ttest_result_NMF_5.txt 20 5
+Rscript ttest_NMF.R demo_data/cell_label.txt demo_out/NMF_10_coef_1_20.txt demo_out/ttest_result_NMF_10.txt 20 10
+```
+
+#### t-test for TPM matrix
+```
+Rscript ttest_TPM.R demo_data/TPM_ES_PrE.txt demo_data/TPM_transcriptid.txt demo_data/cell_label.txt demo_data/mygtf_gene.txt demo_data/transcriptid_to_geneid.txt demo_out/ttest_result_TPM.txt
+```
+
+#### Calculate Delta(Tnmf-Ttpm)
+```
+Rscript calc_DeltaT_NMF_TPM.R demo_out demo_out demo_out/DeltaT_NMF_TPM.txt 20 10
+```
 
 # Pre-processing
 ## Make read count matrix
@@ -129,7 +166,7 @@ The value 1 indicates that the minimum of the mappability of the bin is less tha
 
 
 
-# NMF
+# <a name="nmf"></a> NMF
 ## NMF for read count matrix in parallel
 Run NMF for read count matrix of each gene regions.
 
@@ -142,11 +179,11 @@ Rscript NMF_for_countdata.R <Input_file1> <Input_file2> <Data_dir> <Output_dir> 
 * Input_file2 : isunmappable.txt
 * Data_dir : directory of read count data
 * Output_dir : output directory
-* idx1 : the start index
-* idx2 : the end index
+* idx1 : start index
+* idx2 : end index
 * C : the number of cells
 * K : the factorization rank of NMF
-* seed : the numerical seed
+* seed : numerical seed
 
 #### Example
 ```
@@ -172,8 +209,8 @@ Rscript merge_NMF_coef.R <Input_dir> <C> <G> <K> <idxs1> <idxs2>
 * C : the number of cells
 * G : the number of genes
 * K : the factorization rank of NMF
-* Idxs1 : the list of index of idx1 in NMF_for_countdata.R (separated with ",")
-* Idxs2 : the list of index of idx2 in NMF_for_countdata.R (separated with ",")
+* Idxs1 : list of index of idx1 in NMF_for_countdata.R (separated with ",")
+* Idxs2 : list of index of idx2 in NMF_for_countdata.R (separated with ",")
 
 #### Example
 ```
@@ -184,7 +221,7 @@ Rscript merge_NMF_coef.R ES_PrE/out1 185 4965 5 1,2001 2000,4965
 The script output Input_dir/NMF_K_coef_all.txt, which is the C x (G\*K) matrix.
 
 
-# t-test
+# <a name="ttest"></a> t-test
 ## t-test for NMF results
 #### Usage
 ```
@@ -203,7 +240,7 @@ Rscript ttest_NMF.R ES_PrE/data/cell_label.txt ES_PrE/out1/NMF_5_coef_all.txt ES
 ```
 
 #### Format of Input_file1
-The Input_file3 is the C x 2 Cell label table.
+The Input_file1 is the C x 2 Cell label table.
 The first column corresponds to the sample names, and the second column corresponds to the cluster labels (1 or 2).
 
 #### Example of Input_file1
@@ -219,7 +256,7 @@ Input_file2 is the results of NMF and correspond to Input_dir/NMF_K_coef_all.txt
 #### Format of Output_file
 Output_file is the G x (K\*2) matrix.
 Each row represents the result of t-test for coeffient of NMF.
-The 1st to Kth column represents the t-statisics for each coeccient elements, and the (K+1)th to 2\*K th column represent the -log10(p-value) of corresponding t-statistics.
+The 1st to Kth column represents the t-statisics for each coeffient elements, and the (K+1)th to 2\*K th column represent the -log10(p-value) of corresponding t-statistics.
 
 
 ## t-test for TPM matrix
@@ -228,7 +265,7 @@ The 1st to Kth column represents the t-statisics for each coeccient elements, an
 Rscript ttest_TPM.R <Input_file1> <Input_file2> <Input_file3> <Input_file4> <Input_file5> <Output_file>
 ```
 
-* Input_file1 : TPM matrix including header and rowname, where T is the number of transcripts and C is the number of cells
+* Input_file1 : TPM matrix including header and rowname
 * Input_file2 : list of transcript id
 * Input_file3 : list of cell labels
 * Input_file4 : gene regions annotation file
@@ -282,17 +319,18 @@ The Output_file represents the result of t-test of the mean values of mapped cou
 The first column represents T and the second column represents -log10(p-value), respectively.
 
 
-# Calculate Delta(Tnmf-Ttpm)
+# <a name="deltaT"></a> Calculate Delta(Tnmf-Ttpm)
 
 #### Usage
 ```
-Rscript calc_DeltaT_NMF_TPM.R <Input_dir1> <Input_dir2> <Output_file> <G>
+Rscript calc_DeltaT_NMF_TPM.R <Input_dir1> <Input_dir2> <Output_file> <G> <a>
 ```
 
 * Input_dir1 : directory for t-test results of NMF
 * Input_dir2 : directory for t-test result of TPM
 * Output_file : output file
 * G : the number of genes
+* a : threshold to ignore DE when Ttpm is sufficiently large
 
 #### Example
 ```
