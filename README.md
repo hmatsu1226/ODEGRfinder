@@ -36,9 +36,9 @@ The detailed explanation of each step are described at [NMF](#nmf), [t-test](#tt
 
 #### NMF for read count matrix
 ```
-Rscript NMF_for_countdata.R demo_data/isoverlap.txt demo_data/isunmappable.txt demo_count_data demo_out 1 20 185 2 123456
-Rscript NMF_for_countdata.R demo_data/isoverlap.txt demo_data/isunmappable.txt demo_count_data demo_out 1 20 185 5 123456
-Rscript NMF_for_countdata.R demo_data/isoverlap.txt demo_data/isunmappable.txt demo_count_data demo_out 1 20 185 10 123456
+Rscript NMF_for_countdata.R demo_data/isoverlap.txt demo_data/isunmappable.txt demo_count_data demo_out 1 20 185 2 123456 lee
+Rscript NMF_for_countdata.R demo_data/isoverlap.txt demo_data/isunmappable.txt demo_count_data demo_out 1 20 185 5 123456 lee
+Rscript NMF_for_countdata.R demo_data/isoverlap.txt demo_data/isunmappable.txt demo_count_data demo_out 1 20 185 10 123456 lee
 ```
 
 #### t-test for NMF results
@@ -172,7 +172,7 @@ Run NMF for read count matrix of each gene regions.
 
 #### Usage
 ```
-Rscript NMF_for_countdata.R <Input_file1> <Input_file2> <Data_dir> <Output_dir> <idx1> <idx2> <C> <K> <seed>
+Rscript NMF_for_countdata.R <Input_file1> <Input_file2> <Data_dir> <Output_dir> <idx1> <idx2> <C> <K> <seed> <method>
 ```
 
 * Input_file1 : isoverlap.txt
@@ -184,10 +184,11 @@ Rscript NMF_for_countdata.R <Input_file1> <Input_file2> <Data_dir> <Output_dir> 
 * C : the number of cells
 * K : the factorization rank of NMF
 * seed : numerical seed
+* method : NMF algorithm, such as "lee", "snmf/l", and "snmf/r" (see https://cran.r-project.org/web/packages/NMF/index.html)
 
 #### Example
 ```
-Rscript NMF_for_countdata.R ES_PrE/data/isoverlap.txt ES_PrE/data/isunmappable.txt ES_PrE/count_data ES_PrE/out1 1 2000 185 5 123456
+Rscript NMF_for_countdata.R ES_PrE/data/isoverlap.txt ES_PrE/data/isunmappable.txt ES_PrE/count_data ES_PrE/out1 1 2000 185 5 123456 lee
 ```
 
 #### Data_dir and idx1,2
@@ -334,7 +335,7 @@ Rscript calc_DeltaT_NMF_TPM.R <Input_dir1> <Input_dir2> <Output_file> <G> <a>
 
 #### Example
 ```
-Rscript calc_DeltaT_NMF_TPM.R ES_PrE/out1 ES_PrE/out ES_PrE/out1/DeltaT_NMF_TPM.txt 4965
+Rscript calc_DeltaT_NMF_TPM.R ES_PrE/out1 ES_PrE/out ES_PrE/out1/DeltaT_NMF_TPM.txt 4965 10
 ```
 
 #### Format of Output_file
@@ -343,8 +344,48 @@ The first column represents Delta(Tnmf-Ttpm) values and the second column repres
 Each row represents the result corresponding to the row of gene regions annotation file. 
 
 
+# <a name="pval"></a> permutation-based test for Delta(Tnmf-Ttpm)
+## t-test for NMF results with shuffled cell labels.
+#### Usage
+```
+Rscript ttest_NMF_label_shuffling.R <Input_file1> <Input_file2> <Output_file> <G> <K>
+```
 
+* Input_file1 : cell labels
+* Input_file2 : coefficients of NMF
+* Output_file : result of t-test
+* G : the number of genes
+* K : the factorization rank of NMF
 
+#### Example
+```
+Rscript ttest_NMF_label_shuffling.R ES_PrE/data/cell_label.txt ES_PrE/out1/NMF_2_coef_all.txt ES_PrE/out_shuffle1/ttest_result_NMF_2.txt 4965 2
+Rscript ttest_NMF_label_shuffling.R ES_PrE/data/cell_label.txt ES_PrE/out1/NMF_5_coef_all.txt ES_PrE/out_shuffle1/ttest_result_NMF_5.txt 4965 5
+Rscript ttest_NMF_label_shuffling.R ES_PrE/data/cell_label.txt ES_PrE/out1/NMF_10_coef_all.txt ES_PrE/out_shuffle1/ttest_result_NMF_10.txt 4965 10
+```
 
+## Calculate Delta(Tnmf-Ttpm) for shuffled data
+#### Example
+```
+Rscript calc_DeltaT_NMF_TPM.R ES_PrE/out_shuffle1 ES_PrE/out ES_PrE/out_shuffle1/DeltaT_NMF_TPM.txt 4965 10
+```
 
+## Permutation-based test
+#### Usage
+```
+Rscript permutation_based_test.R <Input_file1> <Input_file2> <Output_file>
+```
 
+* Input_file1 : Delta(Tnmf-Ttpm) for original data
+* Input_file2 : Delta(Tnmf-Ttpm) for shuffled data
+* Output_file : result of permutation-based test
+
+#### Example
+```
+Rscript permutation_based_test.R ES_PrE/out1/DeltaT_NMF_TPM.txt ES_PrE/out_shuffle1/DeltaT_NMF_TPM.txt ES_PrE/out_shuffle1/result_permutation_test.txt
+```
+
+#### Format of Output_file
+The Output_file represents Delta(Tnmf-Ttpm) values and -log10(p-value) for each gene region.
+The first column represents Delta(Tnmf-Ttpm) values and the second column represents -log10(p-value).
+Each row represents the result corresponding to the row of gene regions annotation file. 

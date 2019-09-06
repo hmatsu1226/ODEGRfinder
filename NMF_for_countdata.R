@@ -14,7 +14,7 @@ gene_num <- end_gene_idx - init_gene_idx + 1
 cell_num <- as.numeric(args[7])
 K <- as.numeric(args[8])
 myseed <- as.numeric(args[9])
-
+nmfmethod <- args[10]
 
 NMF_coef <- matrix(rep(0, cell_num*gene_num*K), nrow=cell_num, ncol=gene_num*K)
 
@@ -81,7 +81,7 @@ for(g in 1:gene_num){
 		next
 	}
 
-	if(inherits(try(res <- nmf(t(data), rank=K, seed=myseed, method="lee"), silent=TRUE), "try-error")){
+	if(inherits(try(res <- nmf(t(data), rank=K, seed=myseed, method=nmfmethod), silent=TRUE), "try-error")){
 		next
 	}
 
