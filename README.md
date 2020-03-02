@@ -26,7 +26,7 @@ cd ODEGRfinder
 Or download from "Download ZIP" button and unzip it.
 
 ## Dataset in the manuscript
-The mES-PrE dataset and hNSC-NC dataset are avaiable at https://doi.org/10.6084/m9.figshare.7410509.v1 and https://doi.org/10.6084/m9.figshare.7410512, respectively.
+The mES-PrE dataset and hNSC-NC dataset are available at https://doi.org/10.6084/m9.figshare.7410509.v1 and https://doi.org/10.6084/m9.figshare.7410512, respectively.
 
 ## A small dataset to demo the code
 Running ODEGRfinder with a small dataset (20 genes and 185 cells).
@@ -103,8 +103,8 @@ ES_PrE/data/bw/RamDA_00h_A06.bw
 ```
 
 #### Output_dir
-The read count matrix for each gene region are saved in the Output_dir directory.
-The Output_dir/data_n.txt represents the C x L count matrix for the n-th gene region in Input_file1, where C is the number of cells and L is the number of bins for n-th gene.
+The read count matrix for each gene region are saved in the `Output_dir` directory.
+The `Output_dir/data_n.txt` represents the C x L count matrix for the n-th gene region in Input_file1, where C is the number of cells and L is the number of bins for n-th gene.
 
 #### idx1 and idx2
 The read count matrix from idx1-th row to idx2-th row in "Input_file1" are calculated.
@@ -256,8 +256,8 @@ Input_file2 is the results of NMF and correspond to Input_dir/NMF_K_coef_all.txt
 
 #### Format of Output_file
 Output_file is the G x (K\*2) matrix.
-Each row represents the result of t-test for coeffient of NMF.
-The 1st to Kth column represents the t-statisics for each coeffient elements, and the (K+1)th to 2\*K th column represent the -log10(p-value) of corresponding t-statistics.
+Each row represents the result of t-test for coefficient of NMF.
+The 1st to Kth column represents the t-statistics for each coefficient elements, and the (K+1)th to 2\*K th column represent the -log10(p-value) of corresponding t-statistics.
 
 
 ## t-test for TPM matrix
